@@ -15,13 +15,18 @@ export default function Database() {
 
     onValue(logsRef, (snapshot) => {
       const data = snapshot.val();
-      const formattedRows = Object.keys(data || {}).map((key, index) => ({
+      const sortedKeys = Object.keys(data || {}).sort(
+        (a, b) => new Date(data[a].timestamp) - new Date(data[b].timestamp)
+      );
+      const formattedRows = sortedKeys.map((key, index) => ({
         id: index + 1,
         waktu: data[key].localtime || "Unknown",
         tanggal: data[key].date || "Unknown",
         temperatur: `${data[key].temperature || "-"} C`,
         kelembaban: `${data[key].humidity || "-"} %`,
-        status: "Normal", // You can add logic to determine status based on values
+        status: "Normal", // add logic disini kalo perlu
+        lampu: data[key].lamp ? "On" : "Off",
+        pompa: data[key].pump ? "On" : "Off",
       }));
       setRows(formattedRows);
     });
@@ -42,7 +47,7 @@ export default function Database() {
         if (keyToDelete) {
           const logRef = ref(db, `LOGS/${keyToDelete}`);
           set(logRef, null).then(() => {
-            setOpenSnackbar(true); // Show success popup
+            setOpenSnackbar(true);
           });
         }
       },
@@ -55,10 +60,13 @@ export default function Database() {
   };
 
   const columns = [
+    { field: "id", headerName: "ID", width: 60 },
     { field: "tanggal", headerName: "Tanggal", width: 150 },
     { field: "waktu", headerName: "Waktu", width: 150 },
     { field: "temperatur", headerName: "Temperatur", width: 150 },
     { field: "kelembaban", headerName: "Kelembaban", width: 150 },
+    { field: "lampu", headerName: "Lampu", width: 100 },
+    { field: "pompa", headerName: "Pompa", width: 100 },
     { field: "status", headerName: "Status", width: 150 },
     {
       field: "actions",

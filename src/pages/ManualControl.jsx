@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Switch,
   Dialog,
   DialogActions,
   DialogContent,
@@ -13,10 +12,12 @@ import {
   DialogTitle,
   Snackbar,
   Alert,
+  Box,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { getDatabase, ref, set, onValue } from "firebase/database";
+import { Lightbulb, Air, Opacity } from "@mui/icons-material";
 
 // Styled components for better visuals
 const ControlCard = styled(Card)(({ theme }) => ({
@@ -51,7 +52,7 @@ const ManualControl = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  // Sync state with Firebase
+  // sync state with Firebase
   useEffect(() => {
     const lampRef = ref(db, "CONDITION/LAMP");
     const fanRef = ref(db, "CONDITION/FAN");
@@ -126,11 +127,16 @@ const ManualControl = () => {
               <Typography variant="h6" gutterBottom>
                 Lamp
               </Typography>
-              <Switch
-                checked={lampState}
-                onChange={() => toggleState("LAMP", !lampState)}
-                color="primary"
-              />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  color: lampState ? "primary.main" : "text.secondary",
+                }}
+              >
+                <Lightbulb sx={{ fontSize: "3rem" }} />
+              </Box>
               <Typography variant="body1" sx={{ marginTop: theme.spacing(1) }}>
                 {lampState ? "ON" : "OFF"}
               </Typography>
@@ -152,11 +158,16 @@ const ManualControl = () => {
               <Typography variant="h6" gutterBottom>
                 Fan
               </Typography>
-              <Switch
-                checked={fanState}
-                onChange={() => toggleState("FAN", !fanState)}
-                color="primary"
-              />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  color: fanState ? "primary.main" : "text.secondary",
+                }}
+              >
+                <Air sx={{ fontSize: "3rem" }} />
+              </Box>
               <Typography variant="body1" sx={{ marginTop: theme.spacing(1) }}>
                 {fanState ? "ON" : "OFF"}
               </Typography>
@@ -178,11 +189,16 @@ const ManualControl = () => {
               <Typography variant="h6" gutterBottom>
                 Water Pump
               </Typography>
-              <Switch
-                checked={pumpState}
-                onChange={() => toggleState("WATERPUMP", !pumpState)}
-                color="primary"
-              />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  color: pumpState ? "primary.main" : "text.secondary",
+                }}
+              >
+                <Opacity sx={{ fontSize: "3rem" }} />
+              </Box>
               <Typography variant="body1" sx={{ marginTop: theme.spacing(1) }}>
                 {pumpState ? "ON" : "OFF"}
               </Typography>
@@ -220,7 +236,6 @@ const ManualControl = () => {
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
-        // anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
           onClose={handleSnackbarClose}
