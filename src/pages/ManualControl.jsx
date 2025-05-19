@@ -19,7 +19,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import { Lightbulb, Air, Opacity } from "@mui/icons-material";
 
-// Styled components for better visuals
+// styled components for better visuals
 const ControlCard = styled(Card)(({ theme }) => ({
   textAlign: "center",
   padding: theme.spacing(2),
@@ -52,7 +52,7 @@ const ManualControl = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  // sync state with Firebase
+  // sync state with firebase
   useEffect(() => {
     const lampRef = ref(db, "CONDITION/LAMP");
     const fanRef = ref(db, "CONDITION/FAN");

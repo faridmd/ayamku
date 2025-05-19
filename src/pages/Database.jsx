@@ -60,7 +60,7 @@ export default function Database() {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 60 },
+    { field: "id", headerName: "ID", width: 90 },
     { field: "tanggal", headerName: "Tanggal", width: 150 },
     { field: "waktu", headerName: "Waktu", width: 150 },
     { field: "temperatur", headerName: "Temperatur", width: 150 },

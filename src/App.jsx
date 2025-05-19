@@ -1,15 +1,30 @@
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { ThemeProvider, createTheme } from "@mui/material";
+import React, { useState, createContext, useContext } from "react";
 
-// Pages
+// pages
 import Home from "./pages/Home";
 import Monitoring from "./pages/Monitoring";
 import ManualControl from "./pages/ManualControl";
 import Database from "./pages/Database";
 import AyamSettings from "./pages/AyamSettings";
+import Login from "./pages/Login";
 
-// Components
+// components
 import Frame from "./components/Frame";
+
+// context untuk auth
+const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
+
+// komponen proteksi route
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 const App = () => {
   const theme = createTheme({
@@ -20,19 +35,80 @@ const App = () => {
       },
     },
   });
+
+  // cek localStorage saat inisialisasi
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("ayamku_user");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // simpan user ke localStorage jika ada perubahan
+  React.useEffect(() => {
+    if (user) {
+      localStorage.setItem("ayamku_user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("ayamku_user");
+    }
+  }, [user]);
+
   return (
     <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <Frame>
+      <AuthContext.Provider value={{ user, setUser }}>
+        <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/monitoring" element={<Monitoring />} />
-            <Route path="/controller" element={<ManualControl />} />
-            <Route path="/database" element={<Database />} />
-            <Route path="/settings" element={<AyamSettings />} />
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/*"
+              element={
+                <Frame>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <ProtectedRoute>
+                          <Home />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/monitoring"
+                      element={
+                        <ProtectedRoute>
+                          <Monitoring />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/controller"
+                      element={
+                        <ProtectedRoute>
+                          <ManualControl />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/database"
+                      element={
+                        <ProtectedRoute>
+                          <Database />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/settings"
+                      element={
+                        <ProtectedRoute>
+                          <AyamSettings />
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Routes>
+                </Frame>
+              }
+            />
           </Routes>
-        </Frame>
-      </BrowserRouter>
+        </BrowserRouter>
+      </AuthContext.Provider>
     </ThemeProvider>
   );
 };

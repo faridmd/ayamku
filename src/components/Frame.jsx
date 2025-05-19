@@ -24,11 +24,15 @@ import LegendToggleIcon from "@mui/icons-material/LegendToggle";
 import AdjustIcon from "@mui/icons-material/Adjust";
 import StorageIcon from "@mui/icons-material/Storage";
 import KeyboardCommandKeyIcon from "@mui/icons-material/KeyboardCommandKey";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Keyboard } from "@mui/icons-material";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { useAuth } from "../App";
 
 const drawerWidth = 240;
 
@@ -93,6 +97,8 @@ export default function Frame({ children }) {
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [bottomNavValue, setBottomNavValue] = React.useState(location.pathname);
+  const { user, setUser } = useAuth();
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -105,6 +111,18 @@ export default function Frame({ children }) {
   const handleBottomNavChange = (event, newValue) => {
     setBottomNavValue(newValue);
     window.location.href = newValue;
+  };
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const handleLogout = () => {
+    setUser(null);
+    handleClose();
+    window.location.href = "/login";
   };
 
   return (
@@ -137,6 +155,38 @@ export default function Frame({ children }) {
               <Typography variant="h6" noWrap component="div">
                 Ayamku
               </Typography>
+              {/* user info di pojok kanan atas */}
+              <Box sx={{ flexGrow: 1 }} />
+              {user && (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Typography variant="body2" sx={{ mr: 1 }}>
+                    {user.email}
+                  </Typography>
+                  <IconButton
+                    size="large"
+                    edge="end"
+                    color="inherit"
+                    onClick={handleMenu}
+                  >
+                    <AccountCircle />
+                  </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                    anchorOrigin={{
+                      vertical: "bottom",
+                      horizontal: "right",
+                    }}
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                  >
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Menu>
+                </Box>
+              )}
             </Toolbar>
           </AppBar>
           <Drawer
@@ -351,8 +401,8 @@ export default function Frame({ children }) {
             value="/"
             icon={<HomeIcon />}
             sx={{
-              fontSize: "0.7rem", // Ukuran font lebih kecil
-              minWidth: "auto", // Menghindari lebar minimum default
+              fontSize: "0.7rem", // ukuran font lebih kecil
+              minWidth: "auto", // menghindari lebar minimum default
               padding: theme.spacing(0.5),
             }}
           />
