@@ -13,6 +13,7 @@ import { useTheme } from "@mui/material/styles";
 function Monitoring() {
   const [data, setData] = useState([]);
   const [uptime, setUptime] = useState([]);
+  const [distance, setDistance] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -21,6 +22,7 @@ function Monitoring() {
 
     const dhtRef = ref(database, "DHT");
     const uptimeRef = ref(database, "Uptime");
+    const reservoirDistanceRef = ref(database, "RESERVOIR/distance"); // ref baru
 
     const fetchDHTData = () => {
       onValue(dhtRef, (snapshot) => {
@@ -42,8 +44,19 @@ function Monitoring() {
       });
     };
 
+    // ambil data distance dari RESERVOIR/distance
+    const fetchDistanceData = () => {
+      onValue(reservoirDistanceRef, (snapshot) => {
+        const val = snapshot.val();
+        if (val !== undefined && val !== null) {
+          setDistance(val);
+        }
+      });
+    };
+
     fetchDHTData();
     fetchUptimeData();
+    fetchDistanceData();
   }, []);
 
   return (
@@ -102,6 +115,21 @@ function Monitoring() {
             text={`Temperature\n${data[1]} °C`}
           />
         </Grid>
+        {/* Gauge baru untuk distance */}
+        <Grid item xs={12} sm={3} display="flex" justifyContent="center">
+          <Gauge
+            width={isMobile ? 150 : 200}
+            height={isMobile ? 150 : 200}
+            value={distance}
+            sx={{
+              [`& .${gaugeClasses.valueText}`]: {
+                fontSize: isMobile ? 14 : 18,
+                transform: "translate(0px, 0px)",
+              },
+            }}
+            text={`Reservoir\n${distance ?? "-"} cm`}
+          />
+        </Grid>
         <Grid item xs={12}>
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} sm={6}>
@@ -110,6 +138,7 @@ function Monitoring() {
             <Grid item xs={12} sm={6}>
               <LineGraph datas={data[1]} label="Temperature (°C)" />
             </Grid>
+            {/* LineGraph untuk distance reservoir dihapus */}
           </Grid>
         </Grid>
         <Grid item xs={12}>
