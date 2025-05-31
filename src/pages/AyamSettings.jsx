@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { getDatabase, ref, set } from "firebase/database";
+import React, { useState, useEffect } from "react";
+import { getDatabase, ref, set, onValue } from "firebase/database";
 import {
   Button,
   Card,
@@ -43,6 +43,26 @@ const AyamSettings = () => {
   const [pumpAuto, setPumpAuto] = useState(false);
   const [pumpTankThreshold, setPumpTankThreshold] = useState(30); // persentase tandon
   const [notifActive, setNotifActive] = useState(true);
+
+  // sinkronisasi dengan firebase
+  useEffect(() => {
+    const db = getDatabase();
+    const settingsRef = ref(db, "SETTINGS");
+    const unsubscribe = onValue(settingsRef, (snapshot) => {
+      const val = snapshot.val();
+      if (val) {
+        setLampAuto(val.lamp?.auto ?? false);
+        setLampOnTime(val.lamp?.onTime ?? "18:00");
+        setLampOffTime(val.lamp?.offTime ?? "06:00");
+        setFanAuto(val.fan?.auto ?? false);
+        setFanThreshold(val.fan?.threshold ?? 30);
+        setPumpAuto(val.pump?.auto ?? false);
+        setPumpTankThreshold(val.pump?.tankThreshold ?? 30);
+        setNotifActive(val.notification ?? true);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleDeleteAll = () => {
     const db = getDatabase();
